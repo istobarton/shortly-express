@@ -8,7 +8,7 @@ window.Shortly = Backbone.View.extend({
   },
 
   initialize: function(){
-    localStorage.session_ID = null;
+    localStorage.session_ID = localStorage.session_ID;
     console.log( 'Shortly is running' );
     $('body').append(this.render().el);
 
