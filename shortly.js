@@ -32,11 +32,8 @@ app.get('/', function(req, res) {
   if (validSessions[req.headers.cookie.split('=')[1]]) {
     res.render('index');
   } else {
-    res.redirect('/signup');
+    res.redirect('/login');
   }
-  //if apiKey is null /|| is not confirmed as a good login
-  // if(localStorage.session_ID===null) {
-  // }
 });
 
 app.post('/signup', function(req, res) {
@@ -51,13 +48,11 @@ app.post('/signup', function(req, res) {
           password: req.body.password
         });
        newUserSave.save().then(function(){
-         console.log("User Saved")
          validSessions[req.headers.cookie.split('=')[1]] = newUserSave['id'];
-         console.log("validSessions: ", validSessions)
          res.redirect('/');
        });
      } else {
-       console.log("User already exists")
+       res.render('signupfail');
      }
    });
 });
@@ -87,7 +82,7 @@ app.get('/create', function(req, res) {
   if (validSessions[req.headers.cookie.split('=')[1]]) {
     res.render('index');
   } else {
-    res.redirect('/signup');
+    res.redirect('/login');
   }
 });
 
@@ -99,13 +94,19 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
+app.get('/logout', function(req, res) {
+  var sessionToDelete = req.headers.cookie.split('=')[1];
+  delete validSessions[sessionToDelete];
+  res.render('login');
+});
+
 app.get('/links', function(req, res) {
   if (validSessions[req.headers.cookie.split('=')[1]]) {
     Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
     })
   } else {
-    res.redirect('/signup');
+    res.redirect('/login');
   }
 });
 
@@ -142,7 +143,7 @@ app.post('/links', function(req, res) {
       }
     });
   } else {
-    res.redirect('/signup');
+    res.redirect('/login');
   };
 });
 
