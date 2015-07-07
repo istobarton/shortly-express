@@ -16,7 +16,7 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
-app.use(sessions({secret: '1234567890QWERTY'}));
+app.use(sessions({secret: '1234567890QWERTY', resave: false, saveUninitialized: false}));
 app.use(partials());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
@@ -24,10 +24,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
-var validSessions = {};
+// var validSessions = {};
 
 app.get('/', function(req, res) {
-  if (validSessions[req.headers.cookie.split('=')[1]]) {
+  // if (validSessions[req.headers.cookie.split('=')[1]]) {
+  if(util.checkUser(req)){
     res.render('index');
   } else {
     res.redirect('/login');
@@ -46,7 +47,7 @@ app.post('/signup', function(req, res) {
           password: req.body.password
         });
        newUserSave.save().then(function(){
-         validSessions[req.headers.cookie.split('=')[1]] = newUserSave['id'];
+         util.createSession(req, newUserSave)
          res.redirect('/');
        });
      } else {
@@ -68,7 +69,7 @@ app.post('/login', function(req, res) {
         if(!compare){
           res.render('loginfail')
         }else{
-          validSessions[req.headers.cookie.split('=')[1]] = user["id"];
+          util.createSession(req, user);
           res.redirect('/');
         }
       })
@@ -77,7 +78,7 @@ app.post('/login', function(req, res) {
 });
 
 app.get('/create', function(req, res) {
-  if (validSessions[req.headers.cookie.split('=')[1]]) {
+  if(util.checkUser(req)){
     res.render('index');
   } else {
     res.redirect('/login');
@@ -93,13 +94,12 @@ app.get('/login', function(req, res) {
 });
 
 app.get('/logout', function(req, res) {
-  var sessionToDelete = req.headers.cookie.split('=')[1];
-  delete validSessions[sessionToDelete];
-  res.render('login');
+  util.deleteSession(req);
+  res.redirect('/login');
 });
 
 app.get('/links', function(req, res) {
-  if (validSessions[req.headers.cookie.split('=')[1]]) {
+  if(util.checkUser(req)){
     Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
     })
@@ -109,7 +109,7 @@ app.get('/links', function(req, res) {
 });
 
 app.post('/links', function(req, res) {
-  if (validSessions[req.headers.cookie.split('=')[1]]) {
+  if(util.checkUser(req)){
     var uri = req.body.url;
 
     if (!util.isValidUrl(uri)) {
