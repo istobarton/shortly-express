@@ -19,6 +19,7 @@ Shortly.Router = Backbone.Router.extend({
   },
 
   create: function(){
+    console.log("Router redirect to createLinkView")
     this.swapView(new Shortly.createLinkView());
   }
 });

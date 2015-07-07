@@ -1,4 +1,5 @@
 window.Shortly = Backbone.View.extend({
+
   template: Templates['layout'],
 
   events: {
@@ -7,6 +8,7 @@ window.Shortly = Backbone.View.extend({
   },
 
   initialize: function(){
+    localStorage.session_ID = null;
     console.log( 'Shortly is running' );
     $('body').append(this.render().el);
 
@@ -27,6 +29,7 @@ window.Shortly = Backbone.View.extend({
   },
 
   renderCreateView: function(e){
+    console.log("clicked create link in app.js")
     e && e.preventDefault();
     this.router.navigate('/create', { trigger: true });
   },
@@ -36,5 +39,17 @@ window.Shortly = Backbone.View.extend({
       .removeClass('selected')
       .filter('.' + routeName)
       .addClass('selected');
-  }
+  },
+
+  createUser: function(e){
+    console.log("Creating a new User")
+    e.preventDefault();
+    var $user = this.$el.find('form .user');
+    var $pass = this.$el.find('form .pass');
+    var username = new Shortly.User({
+      username: $user.val(),
+      password: $pass.val(),
+    })
+}
+
 });

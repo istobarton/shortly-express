@@ -23,24 +23,46 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
+app.get('/',
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.post('/signup',
+function(req, res) {
+  var fetchUser = new User({
+    username: req.body.username
+  });
+  fetchUser.fetch()
+         .then(function(user){
+           if (!user){
+              var newUserSave = new User({
+                username: req.body.username,
+                password: req.body.password
+              });
+             newUserSave.save().then(function(){
+               console.log("User Saved")
+               res.send(201, newUserSave)
+             });
+           } else {
+             console.log("User already exists")
+           }
+         });
+});
+
+app.get('/create',
 function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links',
 function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', 
+app.post('/links',
 function(req, res) {
   var uri = req.body.url;
 
