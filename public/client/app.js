@@ -5,12 +5,10 @@ window.Shortly = Backbone.View.extend({
   events: {
     'click li a.index':  'renderIndexView',
     'click li a.create': 'renderCreateView',
-    'click li a.logout': 'renderLogoutView'
   },
 
   initialize: function(){
     localStorage.session_ID = localStorage.session_ID;
-    console.log( 'Shortly is running' );
     $('body').append(this.render().el);
 
     this.router = new Shortly.Router({ el: this.$el.find('#container') });
@@ -27,12 +25,6 @@ window.Shortly = Backbone.View.extend({
   renderIndexView: function(e){
     e && e.preventDefault();
     this.router.navigate('/', { trigger: true });
-  },
-
-  renderLogoutView: function(e){
-    e && e.preventDefault();
-    console.log('Trying to log out.')
-    this.router.navigate('/logout', { trigger: true });
   },
 
   renderCreateView: function(e){

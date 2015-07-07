@@ -10,8 +10,6 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
-var bcrypt = require('bcrypt-nodejs');
-
 
 var app = express();
 

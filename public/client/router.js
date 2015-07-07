@@ -6,7 +6,6 @@ Shortly.Router = Backbone.Router.extend({
   routes: {
     '':       'index',
     'create': 'create', 
-    'logout': 'logout'
   },
 
   swapView: function(view){
@@ -17,14 +16,6 @@ Shortly.Router = Backbone.Router.extend({
     var links = new Shortly.Links();
     var linksView = new Shortly.LinksView({ collection: links });
     this.swapView(linksView);
-  },
-
-  logout: function(){
-    //Force a GET request
-    //Currently, the link navigates to "/logout" in the address bar
-      //but there is not GET request generated. 
-      //The GET request to that endpoint is handled properly in the server
-        //and logs the user out.
   },
 
   create: function(){
