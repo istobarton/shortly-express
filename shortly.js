@@ -28,8 +28,7 @@ app.use(express.static(__dirname + '/public'));
 
 var validSessions = {};
 
-app.get('/',
-function(req, res) {
+app.get('/', function(req, res) {
   if (validSessions[req.headers.cookie.split('=')[1]]) {
     res.render('index');
   } else {
@@ -40,8 +39,7 @@ function(req, res) {
   // }
 });
 
-app.post('/signup',
-function(req, res) {
+app.post('/signup', function(req, res) {
   var fetchUser = new User({
     username: req.body.username
   });
@@ -64,116 +62,89 @@ function(req, res) {
    });
 });
 
-app.post('/login',
-function(req, res) {
+app.post('/login', function(req, res) {
   var fetchUser = new User({
     username: req.body.username
   });
   fetchUser.fetch()
    .then(function(user){
-     if (!user){
+    if (!user){
        res.render('loginfail');
-     } else {
-       console.log( user.get('password') + "  " +req.body.password)
-       bcrypt.compare(req.body.password, user.get('password'), function(err, compare){
-         if(!compare){
-           res.render('loginfail')
-         }else{
-           validSessions[req.headers.cookie.split('=')[1]] = user["id"];
-           res.redirect('/');
-         }
-       })
-     }
+    } else {
+      user.passwordVerify(req.body.password, function(compare){
+        if(!compare){
+          res.render('loginfail')
+        }else{
+          validSessions[req.headers.cookie.split('=')[1]] = user["id"];
+          res.redirect('/');
+        }
+      })
+    }
    });
 });
 
-app.get('/create',
-  function(req, res) {
-    if (validSessions[req.headers.cookie.split('=')[1]]) {
-      res.render('index');
-    } else {
-      res.redirect('/signup');
-    }
+app.get('/create', function(req, res) {
+  if (validSessions[req.headers.cookie.split('=')[1]]) {
+    res.render('index');
+  } else {
+    res.redirect('/signup');
+  }
 });
 
-app.get('/signup',
-function(req, res) {
+app.get('/signup', function(req, res) {
   res.render('signup');
 });
 
-app.get('/login',
-function(req, res) {
+app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.get('/links',
-  function(req, res) {
-    if (validSessions[req.headers.cookie.split('=')[1]]) {
-      Links.reset().fetch().then(function(links) {
-      res.send(200, links.models);
-      })
-    } else {
-      res.redirect('/signup');
+app.get('/links', function(req, res) {
+  if (validSessions[req.headers.cookie.split('=')[1]]) {
+    Links.reset().fetch().then(function(links) {
+    res.send(200, links.models);
+    })
+  } else {
+    res.redirect('/signup');
+  }
+});
+
+app.post('/links', function(req, res) {
+  if (validSessions[req.headers.cookie.split('=')[1]]) {
+    var uri = req.body.url;
+
+    if (!util.isValidUrl(uri)) {
+      console.log('Not a valid url: ', uri);
+      return res.send(404);
     }
-});
 
-app.post('/links',
-  function(req, res) {
-    if (validSessions[req.headers.cookie.split('=')[1]]) {
-      var uri = req.body.url;
+    new Link({ url: uri }).fetch().then(function(found) {
+      if (found) {
+        res.send(200, found.attributes);
+      } else {
+        util.getUrlTitle(uri, function(err, title) {
+          if (err) {
+            console.log('Error reading URL heading: ', err);
+            return res.send(404);
+          }
 
-      if (!util.isValidUrl(uri)) {
-        console.log('Not a valid url: ', uri);
-        return res.send(404);
-      }
-
-      new Link({ url: uri }).fetch().then(function(found) {
-        if (found) {
-          res.send(200, found.attributes);
-        } else {
-          util.getUrlTitle(uri, function(err, title) {
-            if (err) {
-              console.log('Error reading URL heading: ', err);
-              return res.send(404);
-            }
-
-            var link = new Link({
-              url: uri,
-              title: title,
-              base_url: req.headers.origin
-            });
-
-            link.save().then(function(newLink) {
-              Links.add(newLink);
-              res.send(200, newLink);
-            });
+          var link = new Link({
+            url: uri,
+            title: title,
+            base_url: req.headers.origin
           });
-        }
-      });
-    } else {
-      res.redirect('/signup');
-    };
+
+          link.save().then(function(newLink) {
+            Links.add(newLink);
+            res.send(200, newLink);
+          });
+        });
+      }
+    });
+  } else {
+    res.redirect('/signup');
+  };
 });
-
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
-
-//TO DO:
-//Implement Log-In Ability
-  //Connect Session and UserID
-    /*When login POST request comes in
-        fetch username/password from DB if they exist
-          If not, redirect to Signup
-        compare DB password-hash to user-entered pass with bcrypt.compare()
-        If user/DB passwords match, create session_ID
-          Then, create "session" in sessions object (Session instance is Property)
-            Value is {userID: specific-user's-ID from DB}
-  //Render Index
-//Build a way to check all request's session ID
-  //if the session ID is not in our Sessions Object
-    //redirect to sign in
-  //else process data accordingly
 
 
 /************************************************************/
@@ -203,6 +174,6 @@ app.get('/*', function(req, res) {
     }
   });
 });
-
-console.log('Shortly is listening on 4568');
-app.listen(4568);
+var port = 4568
+console.log('Shortly is listening on '+port);
+app.listen(port);

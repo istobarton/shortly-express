@@ -9,6 +9,11 @@ var User = db.Model.extend({
       var pass = this.get('password')
       this.set('password', bcrypt.hashSync(pass));
     })
+  }, 
+  passwordVerify: function(formPassword, callback) {
+    bcrypt.compare(formPassword, this.get('password'), function(err, compare) {
+      callback(compare);
+    });
   }
 });
 
