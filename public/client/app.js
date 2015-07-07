@@ -39,17 +39,6 @@ window.Shortly = Backbone.View.extend({
       .removeClass('selected')
       .filter('.' + routeName)
       .addClass('selected');
-  },
-
-  createUser: function(e){
-    console.log("Creating a new User")
-    e.preventDefault();
-    var $user = this.$el.find('form .user');
-    var $pass = this.$el.find('form .pass');
-    var username = new Shortly.User({
-      username: $user.val(),
-      password: $pass.val(),
-    })
-}
+  }
 
 });

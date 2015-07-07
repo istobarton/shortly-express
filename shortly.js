@@ -26,6 +26,10 @@ app.use(express.static(__dirname + '/public'));
 app.get('/',
 function(req, res) {
   res.render('index');
+  //if apiKey is null /|| is not confirmed as a good login
+  if(localStorage.session_ID===null || )
+  res.redirect('/signup');
+
 });
 
 app.post('/signup',
@@ -100,6 +104,21 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+//TO DO:
+//Implement Log-In Ability
+  //Connect Session and UserID
+    /*When login POST request comes in
+        fetch username/password from DB if they exist
+          If not, redirect to Signup
+        compare DB password-hash to user-entered pass with bcrypt.compare()
+        If user/DB passwords match, create session_ID
+          Then, create "session" in sessions object (Session instance is Property)
+            Value is {userID: specific-user's-ID from DB}
+  //Render Index
+//Build a way to check all request's session ID
+  //if the session ID is not in our Sessions Object
+    //redirect to sign in
+  //else process data accordingly
 
 
 /************************************************************/
